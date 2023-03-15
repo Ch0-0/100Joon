@@ -1,28 +1,37 @@
-import java.io.*;
 import java.util.*;
+import java.io.*;
 
-class Main {
-    public static void main(String[] args) throws Exception {
+
+public class Main {
+
+
+    public static void main(String[] args) throws Exception{
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int n = Integer.parseInt(br.readLine());
-        StringTokenizer st = new StringTokenizer(br.readLine());
-        int[] weight = new int[n];
-
-        for (int i=0; i<n; i++) {
-            weight[i] = Integer.parseInt(st.nextToken());
+        int repeat = Integer.parseInt(br.readLine());
+        StringTokenizer st= new StringTokenizer(br.readLine(), " ");
+        int[] array = new int[repeat];
+        
+        for(int i=0; i<repeat; i++) {
+        	array[i] = Integer.parseInt(st.nextToken());
         }
-
-        Arrays.sort(weight);
-
+        
+        Arrays.sort(array);
+        
         int sum = 0;
-        for (int i=0; i<n; i++) {
-            if (sum + 1 < weight[i]) {
-                break;
-            }
-
-            sum += weight[i];
+        
+        for(int i=0; i<repeat; i++) {
+        	if(sum+1>=array[i]) {
+        		sum += array[i];
+        	}else {
+        		break;
+        	}
+        	
         }
 
-        System.out.println(sum + 1);
+        
+        System.out.println(sum+1);
+		
+
+  
     }
 }
