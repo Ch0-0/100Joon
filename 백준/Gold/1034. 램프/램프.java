@@ -1,54 +1,43 @@
 import java.util.*;
 import java.io.*;
 
-
-
 public class Main {
-
 	
 	public static void main(String[] args) throws IOException {
-		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-		StringTokenizer st = new StringTokenizer(in.readLine());
-		int depth = Integer.valueOf(st.nextToken());
-		int wide = Integer.valueOf(st.nextToken());
-		String[] str = new String[depth];
-		for (int i = 0; i < depth; i++) {
-			st = new StringTokenizer(in.readLine());
-			str[i] = st.nextToken();
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st = new StringTokenizer(br.readLine());
+		int N = Integer.parseInt(st.nextToken());
+		int M = Integer.parseInt(st.nextToken());
+		
+		String[] light = new String[N];
+		for (int i = 0; i < N; i++) {
+			light[i] = br.readLine();
 		}
-		st = new StringTokenizer(in.readLine());
-		int K = Integer.valueOf(st.nextToken());
-		int oddEven=K%2;
-		if(K>50) {
-			K=50;
+		int K = Integer.parseInt(br.readLine());
+		
+		int K2 = K % 2;
+		boolean[] check = new boolean[N];
+		for (int i = 0; i < N; i++) {
+			int zero = 0;
+			for (int j = 0; j < M; j++) {
+				if(light[i].charAt(j) == '0')	zero++;
+			}
+			if(zero <= K && zero%2 == K2)	check[i] = true;
 		}
-		int max =0;
-		int idx=-1;
-		for(int i=0; i<depth; i++) {
-			int zeroNum=0;
-			String tmp = str[i];
-			for(int j=0; j<wide; j++) {
-				if(tmp.charAt(j) == '0')
-					zeroNum++;
-			}
-			if(zeroNum%2 != oddEven) {
-				continue;
-			}
-			int patern =1;
-			for(int k=0; k<depth; k++) {
-				if(k!=i && tmp.equals(str[k])) {
-					patern++;
+		
+		int ans = 0;
+		for (int i = 0; i < N; i++) {
+			if(!check[i]) continue;
+			
+			int cnt = 0;
+			for (int j = 0; j < N; j++) {
+				if(light[i].equals(light[j])) {
+					check[j] = false;
+					cnt++;
 				}
 			}
-			if(zeroNum<=K && patern > max) {
-				max = patern;
-				idx = i;
-			}
+			ans = Math.max(ans, cnt);
 		}
-		if(idx!=-1) {
-			System.out.println(max);
-		}else {
-			System.out.println(0);
-		}
+		System.out.println(ans);
 	}
 }
