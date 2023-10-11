@@ -3,7 +3,7 @@ import java.io.*;
 
 public class Main {
 
-    public static array[][], isAction[][];
+    public static int array[][], isAction[][];
     public static int size_X, size_Y;
     public static int lowSelect_X, lowSelect_Y, highSelect_X, highSelect_Y;
     public static int count, low_Y, high_Y, lowSum, highSum;
@@ -64,7 +64,7 @@ public class Main {
     }
 
     public static void LowSelectCompare(int x, int y){
-        if((x+y) > lowSum || ((x+y) == lowSum && <low_Y)){
+        if((x+y) > lowSum || ((x+y) == lowSum && y <low_Y)) {
             lowSum = x+y;
             low_Y = y;
             lowSelect_X = x;
@@ -73,7 +73,7 @@ public class Main {
     }
 
     public static void HighSelectComare(int x, int y){
-        if((x+y) < highSum || ((x+y) == highSum && <low_Y)){
+        if((x+y) < highSum || ((x+y) == highSum && y <low_Y)){
             highSum = x+y;
             high_Y = y;
             highSelect_X = x;
