@@ -8,6 +8,8 @@ public class Main {
     public static int lowSelect_X, lowSelect_Y, highSelect_X, highSelect_Y;
     public static int count, low_Y, high_Y, lowSum, highSum;
     public static int recentAtack_X = -1, recentAtack_Y = -1;
+    public static int recentAtack[][];
+    public static int longAtack[][];
     public static int[] mx = {0, 1, 0, -1};
     public static int[] my = {1, 0 ,-1, 0};
     public static int[] mmx = {-1,-1,0,1,1,1,0,-1};
@@ -22,6 +24,7 @@ public class Main {
         int max = 0;
         int min = 9999;
         isAction = new int[size_X][size_Y];
+        
 
         for(int i=0; i<size_X; i++){
             for(int j=0; j<size_Y; j++){
@@ -35,27 +38,62 @@ public class Main {
                     min = array[i][j];
                     lowSelect_X = i;
                     lowSelect_Y = j;
+                    low_Y = j;
+                    lowSum = i+j;
                 } else if (array[i][j] == min){
-                    LowSelectCompare(i, j);
+                	if(recentAtack[i][j] < recentAtack[lowSelect_X][lowSelect_Y]) {
+                		lowSelect_X = i;
+                		lowSelect_Y = j;
+                		low_Y = j;
+                        lowSum = i+j;
+                	} else if (recentAtack[i][j] > recentAtack[lowSelect_X][lowSelect_Y]){
+
+                	} else {
+                		LowSelectCompare(i,j);
+                	}
                 }
 
                 if (array[i][j] > max) {
                     max = array[i][j];
                     highSelect_X = i;
                     highSelect_Y = j;
+                    high_Y = j;
+                    highSum = i+j;
                 } else if (array[i][j] == max){
-                    HighSelectComare(i,j);
+                	if(recentAtack[i][j] > recentAtack[highSelect_X][highSelect_Y]) {
+                		highSelect_X = i;
+                		highSelect_Y = j;
+                		high_Y = j;
+                        highSum = i+j;
+                	} else if (recentAtack[i][j] < recentAtack[highSelect_X][highSelect_Y]){
+
+                	} else {
+                		HighSelectCompare(i,j);
+                	}
                 }
             }
         }
-        if(recentAtack_X != -1){
+    /*    if(recentAtack_X != -1){
             if (array[lowSelect_X][lowSelect_Y] == array[recentAtack_X][recentAtack_Y]){
                 lowSelect_X = recentAtack_X;
                 lowSelect_Y = recentAtack_Y;
             }
-        }
+        }*/
         recentAtack_X = lowSelect_X;
         recentAtack_Y = lowSelect_Y;
+      	for(int i=0; i<size_X; i++) {
+       		for (int j=0; j<size_Y; j++) {
+       			recentAtack[i][j]++;
+       		}
+       	}
+      	recentAtack[recentAtack_X][recentAtack_Y] = 0;
+      	
+/*      	 System.out.println("공격순위");
+        	for(int i=0; i<size_X; i++) {
+        		for (int j=0; j<size_Y; j++) {
+        			System.out.print(recentAtack[i][j]+" ");
+        		}System.out.println();
+        	}*/
 
     }
 
@@ -64,7 +102,7 @@ public class Main {
     }
 
     public static void LowSelectCompare(int x, int y){
-        if((x+y) > lowSum || ((x+y) == lowSum && y <low_Y)) {
+        if((x+y) > lowSum || ((x+y) == lowSum && y >low_Y)) {
             lowSum = x+y;
             low_Y = y;
             lowSelect_X = x;
@@ -72,8 +110,8 @@ public class Main {
         }
     }
 
-    public static void HighSelectComare(int x, int y){
-        if((x+y) < highSum || ((x+y) == highSum && y <low_Y)){
+    public static void HighSelectCompare(int x, int y){
+        if((x+y) < highSum || ((x+y) == highSum && y <high_Y)){
             highSum = x+y;
             high_Y = y;
             highSelect_X = x;
@@ -82,7 +120,7 @@ public class Main {
     }
 
     public static void DMGUp(int x, int y){
-        array[x][y] = array[x][y] + 8;
+        array[x][y] = array[x][y] + size_X + size_Y;
     }
 
     public static void razerATK(){
@@ -111,8 +149,8 @@ public class Main {
             }
 
             for(int i=0; i<4; i++){
-                int nx = (x + mx[i] + size_X) & size_X;
-                int ny = (y + my[i] + size_Y) & size_Y;
+                int nx = (x + mx[i] + size_X) % size_X;
+                int ny = (y + my[i] + size_Y) % size_Y;
                 
                 if(array_visit[nx][ny]) continue;
                 if(array[nx][ny] == 0) continue;
@@ -149,6 +187,12 @@ public class Main {
                 q.add(new int[] {bx,by});
 
             }
+         /*      System.out.println("레이저공격");
+           	for(int i=0; i<size_X; i++) {
+           		for (int j=0; j<size_Y; j++) {
+           			System.out.print(array[i][j]+" ");
+           		}System.out.println();
+           	}*/
             noActionBonus();
 
         }
@@ -165,16 +209,28 @@ public class Main {
             for(int i=0; i<8; i++){
                 hx = highSelect_X;
                 hy = highSelect_Y;
-                hx = (hx + mmx[i] +size_X) & size_X;
-                hy = (hy + mmy[i] +size_Y) & size_Y;
+                hx = (hx + mmx[i] +size_X) % size_X;
+                hy = (hy + mmy[i] +size_Y) % size_Y;
 
                 isAction[hx][hy] = 1;
+                if(hx == lowSelect_X && hy == lowSelect_Y) { 
+                	//System.out.println("역시"); 
+                continue;}
                 array[hx][hy] = array[hx][hy] - array[lowSelect_X][lowSelect_Y]/2;
                 if(array[hx][hy] <0) array[hx][hy] = 0;
             }
+            
+            /*System.out.println("폭탄공격");
+        	for(int i=0; i<size_X; i++) {
+        		for (int j=0; j<size_Y; j++) {
+        			System.out.print(array[i][j]+" ");
+        		}System.out.println();
+        	}*/
             noActionBonus();
         }
         AtkCheck = false;
+        
+
     }
     
     public static void noActionBonus() {
@@ -206,6 +262,8 @@ public class Main {
             int repaet = Integer.parseInt(st.nextToken());
 
             array = new int[size_X][size_Y];
+            longAtack = new int[size_X][size_Y];
+            recentAtack = new int[size_X][size_Y];
 
             for(int i=0; i<size_X; i++){
                 st = new StringTokenizer(br.readLine());
@@ -221,9 +279,19 @@ public class Main {
                 if(count == 1){
                     break;
                 } else {
+                	/*System.out.println();
+                	System.out.println("공격자: "+lowSelect_X+","+lowSelect_Y +" / " + "수비자: " +highSelect_X+"," + highSelect_Y);
+                	for(int i=0; i<size_X; i++) {
+                		for (int j=0; j<size_Y; j++) {
+                			System.out.print(array[i][j]+" ");
+                		}System.out.println();
+                	}*/
                     DMGUp(lowSelect_X, lowSelect_Y);
+                    
                     razerATK();
+
                     boom();
+                
                 }
             }
 
