@@ -1,0 +1,243 @@
+import java.util.*;
+import java.io.*;
+
+public class Main {
+
+    public static array[][], isAction[][];
+    public static int size_X, size_Y;
+    public static int lowSelect_X, lowSelect_Y, highSelect_X, highSelect_Y;
+    public static int count, low_Y, high_Y, lowSum, highSum;
+    public static int recentAtack_X = -1, recentAtack_Y = -1;
+    public static int[] mx = {0, 1, 0, -1};
+    public static int[] my = {1, 0 ,-1, 0};
+    public static int[] mmx = {-1,-1,0,1,1,1,0,-1};
+    public static int[] mmy = {0,1,1,1,0,-1,-1,-1};
+    public static int px, py;
+    public static boolean AtkCheck;
+
+    public static void findForCntNSelect(){
+        count = 0;
+        lowSum = 0;
+        highSum = 9999;
+        int max = 0;
+        int min = 9999;
+        isAction = new int[size_X][size_Y];
+
+        for(int i=0; i<size_X; i++){
+            for(int j=0; j<size_Y; j++){
+                if (array[i][j] == 0){
+                    continue;
+                } else if (array[i][j] > 0){
+                    count++;
+                }
+
+                if (array[i][j] < min) {
+                    min = array[i][j];
+                    lowSelect_X = i;
+                    lowSelect_Y = j;
+                } else if (array[i][j] == min){
+                    LowSelectCompare(i, j);
+                }
+
+                if (array[i][j] > max) {
+                    max = array[i][j];
+                    highSelect_X = i;
+                    highSelect_Y = j;
+                } else if (array[i][j] == max){
+                    HighSelectComare(i,j);
+                }
+            }
+        }
+        if(recentAtack_X != -1){
+            if (array[lowSelect_X][lowSelect_Y] == array[recentAtack_X][recentAtack_Y]){
+                lowSelect_X = recentAtack_X;
+                lowSelect_Y = recentAtack_Y;
+            }
+        }
+        recentAtack_X = lowSelect_X;
+        recentAtack_Y = lowSelect_Y;
+
+    }
+
+    public static boolean LowRecentCheck(int x, int y){
+        return x == recentAtack_X && y == recentAtack_Y;
+    }
+
+    public static void LowSelectCompare(int x, int y){
+        if((x+y) > lowSum || ((x+y) == lowSum && <low_Y)){
+            lowSum = x+y;
+            low_Y = y;
+            lowSelect_X = x;
+            lowSelect_Y = y;
+        }
+    }
+
+    public static void HighSelectComare(int x, int y){
+        if((x+y) < highSum || ((x+y) == highSum && <low_Y)){
+            highSum = x+y;
+            high_Y = y;
+            highSelect_X = x;
+            highSelect_Y = y;
+        }
+    }
+
+    public static void DMGUp(int x, int y){
+        array[x][y] = array[x][y] + 8;
+    }
+
+    public static void razerATK(){
+        boolean[][] array_visit = new boolean[size_X][size_Y];
+        array_visit[lowSelect_X][lowSelect_Y] = true;
+
+        int[][] backArr_X = new int[size_X][size_Y];
+        int[][] backArr_Y = new int[size_X][size_Y];
+
+        AtkCheck = false;
+
+        Queue<int[]> q = new LinkedList<>();
+        q.add(new int[] {lowSelect_X, lowSelect_Y});
+
+        while(!q.isEmpty()){
+            int[] xy = q.poll();
+            int x = xy[0];
+            int y = xy[1];
+
+            if(x == highSelect_X && y ==highSelect_Y){
+                AtkCheck = true;
+                array[x][y] = array[x][y] - array[lowSelect_X][lowSelect_Y];
+                if(array[x][y]<0) array[x][y] = 0;
+
+                break;
+            }
+
+            for(int i=0; i<4; i++){
+                int nx = (x + mx[i] + size_X) & size_X;
+                int ny = (y + my[i] + size_Y) & size_Y;
+                
+                if(array_visit[nx][ny]) continue;
+                if(array[nx][ny] == 0) continue;
+
+                array_visit[nx][ny] = true;
+                backArr_X[nx][ny] = x;
+                backArr_Y[nx][ny] = y;
+
+                q.add(new int[] {nx,ny});
+            }
+        }
+
+        if(AtkCheck){
+            q.clear();
+
+            q.add(new int[] {highSelect_X,highSelect_Y});
+
+            while(!q.isEmpty()){
+                int[] p = q.poll();
+                int x = p[0];
+                int y = p[1];
+
+                int bx = backArr_X[x][y];
+                int by = backArr_Y[x][y];
+
+                if(bx == lowSelect_X && by == lowSelect_Y){
+                    break;
+                }
+
+                isAction[bx][by] = 1;
+                array[bx][by] = array[bx][by] - array[lowSelect_X][lowSelect_Y]/2;
+                if(array[bx][by]<0) array[bx][by] = 0;
+
+                q.add(new int[] {bx,by});
+
+            }
+            noActionBonus();
+
+        }
+
+    }
+
+    public static void boom(){
+        if(!AtkCheck){
+            int hx = highSelect_X;
+            int hy = highSelect_Y;
+            array[hx][hy] = array[hx][hy] - array[lowSelect_X][lowSelect_Y];
+            if(array[hx][hy] < 0) array[hx][hy] = 0;
+
+            for(int i=0; i<8; i++){
+                hx = highSelect_X;
+                hy = highSelect_Y;
+                hx = (hx + mmx[i] +size_X) & size_X;
+                hy = (hy + mmy[i] +size_Y) & size_Y;
+
+                isAction[hx][hy] = 1;
+                array[hx][hy] = array[hx][hy] - array[lowSelect_X][lowSelect_Y]/2;
+                if(array[hx][hy] <0) array[hx][hy] = 0;
+            }
+            noActionBonus();
+        }
+        AtkCheck = false;
+    }
+    
+    public static void noActionBonus() {
+        isAction[lowSelect_X][lowSelect_Y] = 1;
+        isAction[highSelect_X][highSelect_Y] = 1;
+
+        for (int i=0; i<size_X; i++){
+            for (int j=0; j<size_Y; j++){
+                if(array[i][j]==0) continue;
+                if(isAction[i][j]==0){
+                    array[i][j]++;
+                }
+            }
+        }
+
+    }
+
+
+
+    public static void main(String[] args) throws Exception {
+        // 여기에 코드를 작성해주세요.
+
+        try{
+            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+            StringTokenizer st = new StringTokenizer(br.readLine());
+
+            size_X = Integer.parseInt(st.nextToken());
+            size_Y = Integer.parseInt(st.nextToken());
+            int repaet = Integer.parseInt(st.nextToken());
+
+            array = new int[size_X][size_Y];
+
+            for(int i=0; i<size_X; i++){
+                st = new StringTokenizer(br.readLine());
+                for(int j=0; j<size_Y; j++){
+                    array[i][j] = Integer.parseInt(st.nextToken());
+                    
+                }
+            }
+
+            for (int r=0; r<repaet; r++){
+
+                findForCntNSelect();
+                if(count == 1){
+                    break;
+                } else {
+                    DMGUp(lowSelect_X, lowSelect_Y);
+                    razerATK();
+                    boom();
+                }
+            }
+
+            int max =0;
+            for (int i=0; i<size_X; i++){
+                for (int j=0; j<size_Y; j++){
+                    max = Math.max(max, array[i][j]);
+                }
+            }
+
+            System.out.println(max);
+
+        } catch (Exception e){
+            
+        }
+    }
+}
