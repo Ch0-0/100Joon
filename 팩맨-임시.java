@@ -1,7 +1,7 @@
 import java.util.*;
 import java.io.*;
 
-public class test{
+public class Main{
   public static int[][] board = new int[4][4];
   public static int[][] egg   = new int[4][4];
   public static int[][] dead  = new int[4][4];
@@ -9,8 +9,9 @@ public class test{
   public static int[][] backArr_X = new int[4][4];
   public static int[][] backArr_Y = new int[4][4];
 
-  public static int mCnt;
+  public static int mCnt, max;
   public static int pmx, pmy;
+  public static int back1, back2;
   public static int size_X = 4;
   public static int size_Y = 4;
 
@@ -55,72 +56,59 @@ public class test{
   public static boolean canGo(int x, int y){
     return x>=0 && y>=0 && x<4 && y<4;
   }
+  
+  public static void PackManEat(int x, int y, int[][] array, int cnt, int eat, int b1, int b2, int b3) {
+	//  System.out.println("팩맨 상세위치:"+cnt+"번째 "+x+","+y+"이고 "+eat+"개 먹음 이전방향은 "+b1+" -> "+b2+" -> "+b3);
+	  int[][] copyArr = new int[4][4];
+	  for(int i=0; i<4; i++) {
+		  copyArr[i] = array[i].clone();
+	  }
+	  if(cnt==3) {
+		  if(max<eat) {
+	//		  System.out.println("팩맨 갱신됨!! "+x+","+y+"이고 "+eat+"개 먹음 이전방향은 "+b1+" -> "+b2+" -> "+b3);
+			  pmx = x;
+			  pmy = y;
+			  max = eat;
+			  back1 = b2;
+			  back2 = b3;
+		  }
+	  } else {
+		  
+		  for(int i=0; i<4; i++){
+		        int rx = x + dx[i];
+		        int ry = y + dy[i];
+		        if(canGo(rx,ry)) {
+		        	eat += copyArr[rx][ry];
+		        	copyArr[rx][ry] = 0;
+		        	if (cnt == 1) {
+			        	PackManEat(rx,ry,copyArr,cnt+1,eat,b1,i,-1);
+		        	} else if (cnt == 2) {
+			        	PackManEat(rx,ry,copyArr,cnt+1,eat,b1,b2,i);
+		        	} else {
+		        		PackManEat(rx,ry,copyArr,cnt+1,eat,i,-1,-1);
+		        	}
+		        }
+		  }
+	  }
+  }
 
   public static int PackManMove(int x, int y){
-    int max = -1;
-    Queue<int[]> p = new LinkedList<>();
-    p.add(new int[] {x,y,0,0,-1,-1,-1});
-      
-    int b1 = 0;
-    int b2 = 0;
-    int b3 = 0;
-    
-    while(!p.isEmpty()){
-      int[] pp = p.poll();
-      int pdx = pp[0];
-      int pdy = pp[1];
-      int eat = pp[2];
-      int cnt = pp[3];
-      int m1 = pp[4];
-      int m2 = pp[5];
-      int m3 = pp[6];
-//큐에 각 이동이력 남기기
-     
-      if(cnt == 3) {
-          if(max<eat){
-            max = eat;
-            pmx = pdx;
-            pmy = pdy;
-            b1 = m1;
-            b2 = m2;
-            b3 = m3;
-          }
-        continue;
-      }
-      
-cnt ++;
-      for(int i=0; i<4; i++){
-        int rx = pdx + dx[i];
-        int ry = pdy + dy[i];
-        if(canGo(rx,ry)){
-           switch(cnt){
-             case 1: p.add(new int[] {rx,ry,eat+board[rx][ry],cnt,i,-1,-1});
-             break;
-             case 2: p.add(new int[] {rx,ry,eat+board[rx][ry],cnt,m1,i,-1});
-             break;
-             case 3: p.add(new int[] {rx,ry,eat+board[rx][ry],cnt,m1,m2,i});
-             break;
-             default:
-               break;
-      }
-          
-        } 
-      }
-
-        
-    }
+    max = -1;
+    back1 = -1;
+    back2 = -1;
+    PackManEat(pmx,pmy,board,0,0,-1,-1,-1);
 
       int[] tmx = new int[] {1,0,-1,0};
       int[] tmy = new int[] {0,1,0,-1};
       board[pmx][pmy] = 0;
       dead[pmx][pmy] = 2;
-      if(b3 != -1){
-        int tx = pmx + tmx[b3];
-        int ty = pmy + tmy[b3];
+      if(back2 != -1){
+        int tx = pmx + tmx[back2];
+        int ty = pmy + tmy[back2];
         board[tx][ty] = 0;
         dead[tx][ty] = 2;
-        board[tx+tmx[b2]][ty+tmy[b2]] = 0;
-        dead[tx+tmx[b2]][ty+tmy[b2]] = 2;
+        board[tx+tmx[back1]][ty+tmy[back1]] = 0;
+        dead[tx+tmx[back1]][ty+tmy[back1]] = 2;
 
         for(int mrepeat=0; mrepeat<mCnt; mrepeat++){
           int[] qp = q.poll();
@@ -131,12 +119,26 @@ cnt ++;
           if(bady == 1) continue;
           if(mdx==tx && mdy ==ty){
           } else if(mdx == pmx && mdy ==pmy){
-          } else if(mdx == (tx+tmx[b2]) && mdy == (ty+tmy[b2])){
+          } else if(mdx == (tx+tmx[back1]) && mdy == (ty+tmy[back1])){
           } else {
             q.add(new int[] {mdx,mdy,mddir,0});
           }
         }
-        
+      /*  System.out.println("==========남은 몬스터=========");
+        for(int i=0; i<4; i++) {
+      	  for(int j=0; j<4; j++) {
+      		if(i==tx && j ==ty){
+      			System.out.print("2X ");
+            } else if(i == pmx && j ==pmy){
+            	System.out.print("3X ");
+            } else if(i == (tx+tmx[back1]) && j == (ty+tmy[back1])){
+            	System.out.print("1X ");
+            } else {
+            	System.out.print(board[i][j]+" ");
+            }
+      		 
+      	  }System.out.println();
+        }*/
       }
     mCnt = mCnt - max;
     return max;
@@ -208,8 +210,33 @@ cnt ++;
     }
     for(int i=0; i<repeat; i++){
       copy(false);
+      /*System.out.println("==========알낳은후 상황=========");
+      for(int x=0; x<4; x++) {
+    	  for(int y=0; y<4; y++) {
+    		  System.out.print(egg[x][y]+" ");
+    	  }System.out.println();
+      }
+      System.out.println("==========몬스터 AS-IS=========");
+      for(int x=0; x<4; x++) {
+    	  for(int y=0; y<4; y++) {
+    		  System.out.print(board[x][y]+" ");
+    	  }System.out.println();
+      }*/
       MonsterMove();
+    /*  System.out.println("==========몬스터 TO-BE=========");
+      for(int x=0; x<4; x++) {
+    	  for(int y=0; y<4; y++) {
+    		  System.out.print(board[x][y]+" ");
+    	  }System.out.println();
+      }
+      System.out.println("=======백맨위치: "+pmx+", "+pmy+"===========");*/
       PackManMove(pmx,pmy);
+    /*  System.out.println("==========남은 몬스터=========");
+      for(int x=0; x<4; x++) {
+    	  for(int y=0; y<4; y++) {
+    		  System.out.print(board[x][y]+" ");
+    	  }System.out.println();
+      }*/
       deadminus();
       copy(true);
     }
