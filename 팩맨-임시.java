@@ -152,24 +152,29 @@ cnt ++;
       q.add(new int[] {mdx,mdy,mddir,1});
       mplus++;
       
+      int rmdx = 0;
+      int rmdy = 0;
+      boolean moveYN = false;
       for(int i=0; i<8; i++){
         int rmddir = (mddir + i + 8) % 8;
-        int rmdx = mdx + ddx[rmddir];
-        int rmdy = mdy + ddy[rmddir];
+       // System.out.println(mdx+" "+ddx[rmddir]);
+        rmdx = mdx + ddx[rmddir];
+        rmdy = mdy + ddy[rmddir];
         if(canGo(rmdx,rmdy)){
           if(dead[rmdx][rmdy] == 0){
               if(!(rmdx == pmx && rmdy == pmy)){
               board[mdx][mdy] --;
               board[rmdx][rmdy] ++;
               q.add(new int[] {rmdx,rmdy,i,0});
+              moveYN = true;
               break;
             }
           }
-        } else if(mdx==rmdx && mdy==rmdy){
-          q.add(new int[] {rmdx,rmdy,mddir,0});
         }
       }
-
+      if(moveYN){
+          q.add(new int[] {mdx,mdy,mddir,0});
+       }
     }
   mCnt += mplus;
   }
