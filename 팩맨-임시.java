@@ -6,6 +6,8 @@ public class test{
   public static int[][] egg   = new int[4][4];
   public static int[][] dead  = new int[4][4];
   public static int[][] visit = new int[4][4];
+  public static int[][] backArr_X = new int[4][4];
+  public static int[][] backArr_Y = new int[4][4];
 
   public static int mCnt;
   public static int pmx, pmy;
@@ -56,13 +58,23 @@ public class test{
   public static int PackManMove(int x, int y){
     int max = -1;
     Queue p<int[]> = new LinkedList<>();
-    p.add(new int[] {x,y,0});
+    p.add(new int[] {x,y,0,0});
     
     while(!isEmpty()){
       int[] pp = p.poll();
       int pdx = pp[0];
       int pdy = pp[1];
       int eat = pp[2];
+      int cnt = pp[3];
+//큐에 각 이동이력 남기기
+      if(cnt == 3) {
+          if(max<eat){
+            max = eat;
+            pmx = rx;
+            pmy = ry;
+          }
+        continue;
+      }
       
 
       for(int i=0; i<4; i++){
@@ -70,16 +82,14 @@ public class test{
         int ry = pdy + dy[i];
         if(conGo(rx,ry)){
           eat += board[rx][ry];
-          p.add(new int[] {rx,ry,eat});
-          if(max<eat){
-            max = eat;
-            pmx = rx;
-            pmy = ry;
-          }
+          cnt ++;
+          p.add(new int[] {rx,ry,eat,cnt});
         } 
       }
       
     }
+
+    
     
     return max;
   }
