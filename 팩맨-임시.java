@@ -1,7 +1,7 @@
 import java.util.*;
 import java.io.*;
 
-public class Main{
+public class test{
   public static int[][] board = new int[4][4];
   public static int[][] egg   = new int[4][4];
   public static int[][] dead  = new int[4][4];
@@ -58,14 +58,18 @@ public class Main{
   }
   
   public static void PackManEat(int x, int y, int[][] array, int cnt, int eat, int b1, int b2, int b3) {
-	//  System.out.println("팩맨 상세위치:"+cnt+"번째 "+x+","+y+"이고 "+eat+"개 먹음 이전방향은 "+b1+" -> "+b2+" -> "+b3);
+	 // System.out.println("팩맨 상세위치:"+cnt+"번째 "+x+","+y+"이고 "+eat+"개 먹음 이전방향은 "+b1+" -> "+b2+" -> "+b3);
+	  int aet = eat;
 	  int[][] copyArr = new int[4][4];
 	  for(int i=0; i<4; i++) {
 		  copyArr[i] = array[i].clone();
 	  }
+	  if(cnt!=0) {
+	  copyArr[x][y] = 0;
+	  }
 	  if(cnt==3) {
 		  if(max<eat) {
-	//		  System.out.println("팩맨 갱신됨!! "+x+","+y+"이고 "+eat+"개 먹음 이전방향은 "+b1+" -> "+b2+" -> "+b3);
+		//	  System.out.println("팩맨 갱신됨!! "+x+","+y+"이고 "+eat+"개 먹음 이전방향은 "+b1+" -> "+b2+" -> "+b3);
 			  pmx = x;
 			  pmy = y;
 			  max = eat;
@@ -78,14 +82,14 @@ public class Main{
 		        int rx = x + dx[i];
 		        int ry = y + dy[i];
 		        if(canGo(rx,ry)) {
-		        	eat += copyArr[rx][ry];
-		        	copyArr[rx][ry] = 0;
+		        	aet += copyArr[rx][ry];
+		        	
 		        	if (cnt == 1) {
-			        	PackManEat(rx,ry,copyArr,cnt+1,eat,b1,i,-1);
+			        	PackManEat(rx,ry,copyArr,cnt+1,aet,b1,i,-1);
 		        	} else if (cnt == 2) {
-			        	PackManEat(rx,ry,copyArr,cnt+1,eat,b1,b2,i);
+			        	PackManEat(rx,ry,copyArr,cnt+1,aet,b1,b2,i);
 		        	} else {
-		        		PackManEat(rx,ry,copyArr,cnt+1,eat,i,-1,-1);
+		        		PackManEat(rx,ry,copyArr,cnt+1,aet,i,-1,-1);
 		        	}
 		        }
 		  }
@@ -109,6 +113,8 @@ public class Main{
         dead[tx][ty] = 2;
         board[tx+tmx[back1]][ty+tmy[back1]] = 0;
         dead[tx+tmx[back1]][ty+tmy[back1]] = 2;
+        
+   
 
         for(int mrepeat=0; mrepeat<mCnt; mrepeat++){
           int[] qp = q.poll();
@@ -116,8 +122,9 @@ public class Main{
           int mdy = qp[1];
           int mddir = qp[2];
           int bady = qp[3];
-          if(bady == 1) continue;
-          if(mdx==tx && mdy ==ty){
+          if(bady == 1) {
+        	  q.add(new int[] {mdx,mdy,mddir,0});
+          } else if(mdx==tx && mdy ==ty){
           } else if(mdx == pmx && mdy ==pmy){
           } else if(mdx == (tx+tmx[back1]) && mdy == (ty+tmy[back1])){
           } else {
@@ -145,8 +152,10 @@ public class Main{
   }
 
   public static void MonsterMove(){
+	  
     int mplus = 0;
     for(int mrepeat=0; mrepeat<mCnt; mrepeat++){
+
       int[] qp = q.poll();
       int mdx = qp[0];
       int mdy = qp[1];
@@ -159,7 +168,6 @@ public class Main{
       boolean moveYN = false;
       for(int i=0; i<8; i++){
         int rmddir = (mddir + i + 8) % 8;
-       // System.out.println(mdx+" "+ddx[rmddir]);
         rmdx = mdx + ddx[rmddir];
         rmdy = mdy + ddy[rmddir];
         if(canGo(rmdx,rmdy)){
@@ -167,16 +175,23 @@ public class Main{
               if(!(rmdx == pmx && rmdy == pmy)){
               board[mdx][mdy] --;
               board[rmdx][rmdy] ++;
-              q.add(new int[] {rmdx,rmdy,i,0});
+              q.add(new int[] {rmdx,rmdy,rmddir,0});
               moveYN = true;
               break;
             }
           }
         }
       }
-      if(moveYN){
+      if(!moveYN){
           q.add(new int[] {mdx,mdy,mddir,0});
        }
+      
+  /*	System.out.println("반복이동:"+mrepeat);
+  	for(int x=0; x<4; x++) {
+    	  for(int y=0; y<4; y++) {
+    		  System.out.print(board[x][y]+" ");
+    	  }System.out.println();
+      }*/
     }
   mCnt += mplus;
   }
@@ -210,7 +225,7 @@ public class Main{
     }
     for(int i=0; i<repeat; i++){
       copy(false);
-      /*System.out.println("==========알낳은후 상황=========");
+      /*System.out.println("==========알 상황=========");
       for(int x=0; x<4; x++) {
     	  for(int y=0; y<4; y++) {
     		  System.out.print(egg[x][y]+" ");
@@ -223,7 +238,7 @@ public class Main{
     	  }System.out.println();
       }*/
       MonsterMove();
-    /*  System.out.println("==========몬스터 TO-BE=========");
+     /* System.out.println("==========몬스터 TO-BE(남은몬스터:"+mCnt+"=========");
       for(int x=0; x<4; x++) {
     	  for(int y=0; y<4; y++) {
     		  System.out.print(board[x][y]+" ");
@@ -231,7 +246,7 @@ public class Main{
       }
       System.out.println("=======백맨위치: "+pmx+", "+pmy+"===========");*/
       PackManMove(pmx,pmy);
-    /*  System.out.println("==========남은 몬스터=========");
+     /* System.out.println("==========남은 몬스터(남은몬스터:"+mCnt+"=========");
       for(int x=0; x<4; x++) {
     	  for(int y=0; y<4; y++) {
     		  System.out.print(board[x][y]+" ");
@@ -239,6 +254,8 @@ public class Main{
       }*/
       deadminus();
       copy(true);
+  //    System.out.println("==========몬스터부화(남은몬스터:"+mCnt+"=========");
+
     }
   int result = 0;
     for(int i=0; i<4; i++){
