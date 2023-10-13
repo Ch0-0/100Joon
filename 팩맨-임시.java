@@ -19,7 +19,7 @@ public class test{
   public static int[] ddx = new int[] {-1,-1,0,1,1,1,0,-1};
   public static int[] ddy = new int[] {0,-1,-1,-1,0,1,1,1};
 
-  public static Queue q<int[]> = new LinkedList<>();
+  public static Queue<int[]> q = new LinkedList<>();
   
 
   class Monster {
@@ -60,6 +60,10 @@ public class test{
     int max = -1;
     Queue<int[]> p = new LinkedList<>();
     p.add(new int[] {x,y,0,0,-1,-1,-1});
+      
+    int b1 = 0;
+    int b2 = 0;
+    int b3 = 0;
     
     while(!p.isEmpty()){
       int[] pp = p.poll();
@@ -70,9 +74,6 @@ public class test{
       int m1 = pp[4];
       int m2 = pp[5];
       int m3 = pp[6];
-      int b1 = 0;
-      int b2 = 0;
-      int b3 = 0;
 //큐에 각 이동이력 남기기
      
       if(cnt == 3) {
@@ -120,6 +121,21 @@ cnt ++;
         dead[tx][ty] = 2;
         board[tx+tmx[b2]][ty+tmy[b2]] = 0;
         dead[tx+tmx[b2]][ty+tmy[b2]] = 2;
+
+        for(int mrepeat=0; <mreapeat<mCnt; mrepeat++){
+          int[] qp = q.poll();
+          int mdx = qp[0];
+          int mdy = qp[1];
+          int mdir = qp[2];
+          int bady = qp[3];
+          if(bady == 1) continue;
+          if(mdx==tx && mdy ==ty){
+          } else if(mdx == pmx && mdy ==pmy){
+          } else if(mdx == (tx+tmx[b2]) && mdy == (ty+tmy[b2])){
+          } else {
+            q.add(new int[] {mdx,mdy,mddir,0});
+          }
+        }
         
       }
     mCnt = mCnt - max;
@@ -133,7 +149,7 @@ cnt ++;
       int mdx = qp[0];
       int mdy = qp[1];
       int mddir = qp[2];
-      q.add(new int[] {mdx,mdy,mddir,0});
+      q.add(new int[] {mdx,mdy,mddir,1});
       mplus++;
       
       for(int i=0; i<8; i++){
@@ -145,14 +161,12 @@ cnt ++;
               if(!(rmdx == pmx && rmdy == pmy)){
               board[mdx][mdy] --;
               board[rmdx][rmdy] ++;
-              q.add(new int[] {rmdx,rmdy,i,});
-              mplus++;
+              q.add(new int[] {rmdx,rmdy,i,0});
               break;
             }
           }
         } else if(mdx==rmdx && mdy==rmdy){
-          q.add(new int[] {rmdx,rmdy,mddir});
-          mplus++;
+          q.add(new int[] {rmdx,rmdy,mddir,0});
         }
       }
 
@@ -163,7 +177,7 @@ cnt ++;
  public static void deadminus() {
   for(int i=0; i<4; i++){
     for(int j=0; j<4; j++){
-       dead[i][j]--; 
+       if(dead[i][j]>0) dead[i][j]--; 
     }
   }
  }
@@ -176,8 +190,8 @@ cnt ++;
     int repeat = Integer.parseInt(st.nextToken());
 
     st = new StringTokenizer(br.readLine());
-    pmx = Integer.parseInt(st.nextToken());
-    pmy = Integer.parseInt(st.nextToken());
+    pmx = Integer.parseInt(st.nextToken()) -1;
+    pmy = Integer.parseInt(st.nextToken()) -1;
 
     for(int i=0; i<mCnt; i++){
       st = new StringTokenizer(br.readLine());
