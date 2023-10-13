@@ -122,11 +122,11 @@ cnt ++;
         board[tx+tmx[b2]][ty+tmy[b2]] = 0;
         dead[tx+tmx[b2]][ty+tmy[b2]] = 2;
 
-        for(int mrepeat=0; <mreapeat<mCnt; mrepeat++){
+        for(int mrepeat=0; mrepeat<mCnt; mrepeat++){
           int[] qp = q.poll();
           int mdx = qp[0];
           int mdy = qp[1];
-          int mdir = qp[2];
+          int mddir = qp[2];
           int bady = qp[3];
           if(bady == 1) continue;
           if(mdx==tx && mdy ==ty){
